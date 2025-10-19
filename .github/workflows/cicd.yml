@@ -76,7 +76,7 @@ jobs:
             BUILD_DATE=${{ github.run_attempt }}
             VCS_REF=${{ github.sha }}
           labels: |
-            org.opencontainers.image.created=${{ github.event.repository.pushed_at || github.event.repository.updated_at || now() }}
+            org.opencontainers.image.created=${{ github.event.repository.pushed_at || github.event.repository.updated_at || github.workflow_run.created_at }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.version=${{ github.sha }}
             org.opencontainers.image.revision=${{ github.sha }}

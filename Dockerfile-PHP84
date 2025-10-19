@@ -1,5 +1,14 @@
 # syntax=docker/dockerfile:1
 
+# ---------- Metadata ----------
+LABEL org.opencontainers.image.title="Docker image for PHP 8.4"
+LABEL org.opencontainers.image.description="PHP 8.4 with essential extensions for Symfony"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.source="https://github.com/kaevdokimov/php"
+LABEL org.opencontainers.image.version="8.4"
+LABEL org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+LABEL org.opencontainers.image.authors="Kirill Evdokimov <kirillprof@ya.ru>"
+
 ARG PHP_VERSION=8.4
 ARG ALPINE_VERSION=3.22
 ARG UID=1000
@@ -14,9 +23,9 @@ ENV PHP_CONF_DIR=/usr/local/etc/php/conf.d \
     COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    git unzip wget openssh-client bash icu-dev libxml2-dev gmp-dev libpng-dev \
+    git unzip wget curl cron openssh-client bash icu-dev libxml2-dev gmp-dev libpng-dev \
     libzip-dev postgresql-dev rabbitmq-c-dev libssh-dev gettext-dev linux-headers \
-    autoconf gcc g++ make pcre-dev zlib-dev cron && \
+    autoconf gcc g++ make pcre-dev zlib-dev && \
     docker-php-ext-install -j$(nproc) \
       bcmath gettext gd gmp intl opcache pcntl pdo_pgsql simplexml sockets zip sysvsem && \
     pecl install -o -f apcu amqp igbinary redis && \

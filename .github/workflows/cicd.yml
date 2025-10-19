@@ -1,13 +1,34 @@
-name: Build and Push Docker Image
+name: Build and Push PHP Images
 
 on:
   push:
-    branches-ignore: [ main ]  # Игнорируем main, чтобы не дублировать билды
-  pull_request: {}  # Запускать для всех PR
+    branches-ignore: [ main ]
+  pull_request: {}
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type (php84 or php84-xdebug)'
+        required: false
+        default: 'all'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: 'Dockerfile-PHP84'
+            image_name: 'php84'
+            tag_suffix: '8.4'
+          - dockerfile: 'Dockerfile-PHP84-xdebug'
+            image_name: 'php84-xdebug'
+            tag_suffix: '8.4-xdebug'
+    
+    # Skip matrix entries if workflow_dispatch specifies a specific build type
+    # and it doesn't match the current matrix entry
+    continue-on-error: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.build_type != 'all' && github.event.inputs.build_type != matrix.image_name }}
+    
     permissions:
       contents: read
       packages: write
@@ -29,19 +50,34 @@ jobs:
           password: ${{ secrets.GH_TOKEN }}
 
       - name: Extract branch name
+        id: branch-name
         shell: bash
-        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / - | tr -d '~^:?*[' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        run: |
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / - | tr -d '~^:?*[' | tr '[:upper:]' '[:lower:]')
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${BRANCH_NAME}-${{ matrix.tag_suffix }}" >> $GITHUB_ENV
+          echo "FULL_IMAGE_NAME=${{ github.repository_owner }}/${{ github.event.repository.name }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          file: ${{ matrix.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.BRANCH_NAME }}
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha }}
+            ghcr.io/${{ env.FULL_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ env.FULL_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.tag_suffix }}
+            ghcr.io/${{ env.FULL_IMAGE_NAME }}:${{ matrix.image_name }}-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
             BUILDKIT_INLINE_CACHE=1
+            BUILD_DATE=${{ github.run_attempt }}
+            VCS_REF=${{ github.sha }}
+          labels: |
+            org.opencontainers.image.created=${{ github.event.repository.pushed_at || github.event.repository.updated_at || now() }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ github.sha }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.licenses=MIT

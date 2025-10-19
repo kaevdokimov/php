@@ -11,7 +11,7 @@ ARG APP_ENV=dev
 FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} AS builder
 
 # ---------- Metadata ----------
-LABEL org.opencontainers.image.title="Docker image for PHP 8.4"
+LABEL org.opencontainers.image.title="PHP 8.4 Docker Image"
 LABEL org.opencontainers.image.description="PHP 8.4 with essential extensions for Symfony"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.source="https://github.com/kaevdokimov/php"

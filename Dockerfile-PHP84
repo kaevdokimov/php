@@ -16,7 +16,7 @@ ENV PHP_CONF_DIR=/usr/local/etc/php/conf.d \
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     git unzip wget openssh-client bash icu-dev libxml2-dev gmp-dev libpng-dev \
     libzip-dev postgresql-dev rabbitmq-c-dev libssh-dev gettext-dev linux-headers \
-    autoconf gcc g++ make pcre-dev zlib-dev && \
+    autoconf gcc g++ make pcre-dev zlib-dev cron && \
     docker-php-ext-install -j$(nproc) \
       bcmath gettext gd gmp intl opcache pcntl pdo_pgsql simplexml sockets zip sysvsem && \
     pecl install -o -f apcu amqp igbinary redis && \

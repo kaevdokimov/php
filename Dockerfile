@@ -29,8 +29,8 @@ RUN apk update && apk upgrade && \
     docker-php-ext-enable sysvsem && \
     # Install PECL extensions with build deps
     apk add --no-cache --virtual .build-deps $PHPIZE_DEPS && \
-    pecl install -o -f apcu amqp igbinary redis xdebug && \
-    docker-php-ext-enable apcu amqp igbinary redis xdebug && \
+    pecl install -o -f apcu amqp igbinary redis && \
+    docker-php-ext-enable apcu amqp igbinary redis && \
     # Cleanup
     apk del .build-deps && \
     rm -rf /tmp/* /var/cache/apk/*
@@ -58,11 +58,3 @@ RUN mkdir -p ${PHP_CONF_DIR} && \
     ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone && \
     echo "date.timezone=${TZ}" > ${PHP_CONF_DIR}/custom.ini
-
-# Xdebug configuration for local development
-RUN echo "xdebug.mode=develop,debug,coverage" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
-    echo "xdebug.start_with_request = yes" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
-    echo "xdebug.client_host=host.docker.internal" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
-    echo "xdebug.log=/var/log/xdebug.log" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
-    echo "xdebug.log_level=0" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
-    echo "xdebug.idekey=PHPSTORM" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini

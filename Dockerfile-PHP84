@@ -10,7 +10,8 @@ ARG APP_ENV=dev
 # ---------- Build stage ----------
 FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} AS builder
 
-ENV PHP_CONF_DIR=/usr/local/etc/php/conf.d
+ENV PHP_CONF_DIR=/usr/local/etc/php/conf.d \
+    COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     git unzip wget openssh-client bash icu-dev libxml2-dev gmp-dev libpng-dev \
@@ -23,6 +24,7 @@ RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
     if [ "$APP_ENV" = "dev" ]; then \
       pecl install xdebug && docker-php-ext-enable xdebug ; \
     fi && \
+    rm -rf /tmp/pear ~/.pearrc && \
     apk del .build-deps
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
@@ -33,31 +35,35 @@ FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION}
 ARG UID
 ARG GID
 ARG TZ
+ARG APP_ENV
+
 ENV PHP_CONF_DIR=/usr/local/etc/php/conf.d \
-    TZ=${TZ}
+    TZ=${TZ} \
+    APP_ENV=${APP_ENV} \
+    COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 COPY --from=builder /usr/local/bin/composer /usr/local/bin/composer
 
-RUN apk add --no-cache icu libzip postgresql-libs librabbitmq gmp gettext && \
+RUN apk upgrade --no-cache && \
+    apk add --no-cache icu libzip postgresql-libs librabbitmq gmp gettext && \
     if ! getent group www >/dev/null; then addgroup -g ${GID} www; fi && \
     if ! id www-data >/dev/null 2>&1; then adduser -D -u ${UID} -G www www-data; fi && \
     ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo ${TZ} > /etc/timezone && \
-    echo "date.timezone=${TZ}" > ${PHP_CONF_DIR}/custom.ini
-
-RUN if [ "$APP_ENV" = "dev" ]; then \
-      pecl install xdebug && docker-php-ext-enable xdebug && \
+    echo "date.timezone=${TZ}" > ${PHP_CONF_DIR}/custom.ini && \
+    if [ "$APP_ENV" = "dev" ]; then \
       echo "xdebug.mode=develop,debug,coverage" > ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
       echo "xdebug.start_with_request=yes" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
       echo "xdebug.client_host=host.docker.internal" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
       echo "xdebug.log=/var/log/xdebug.log" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
       echo "xdebug.log_level=0" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini && \
       echo "xdebug.idekey=PHPSTORM" >> ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini ; \
+    else \
+      rm -f ${PHP_CONF_DIR}/docker-php-ext-xdebug.ini ; \
     fi
 
 WORKDIR /var/www
-
 USER www-data
 CMD ["php-fpm"]

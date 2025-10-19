@@ -1,5 +1,10 @@
 # PHP 8.4 Docker Image
 
+[![PHP](https://img.shields.io/badge/PHP-8.4-green.svg)](https://php.net/)
+[![Alpine](https://img.shields.io/badge/Alpine-3.22-green.svg)](https://php.net/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Docker-образ на основе Alpine Linux 3.22 и PHP 8.4 с предустановленными расширениями и настройками для работы с Symfony.
 
 ## Содержимое образа

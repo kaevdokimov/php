@@ -23,7 +23,7 @@ ENV PHP_CONF_DIR=/usr/local/etc/php/conf.d \
     COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    git unzip wget curl cron openssh-client bash icu-dev libxml2-dev gmp-dev libpng-dev \
+    git unzip wget curl openssh-client bash icu-dev libxml2-dev gmp-dev libpng-dev \
     libzip-dev postgresql-dev rabbitmq-c-dev libssh-dev gettext-dev linux-headers \
     autoconf gcc g++ make pcre-dev zlib-dev && \
     docker-php-ext-install -j$(nproc) \

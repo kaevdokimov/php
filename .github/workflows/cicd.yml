@@ -27,8 +27,6 @@ jobs:
             image_name: 'php84-dev'
             tag_suffix: '8.4-dev'
 
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.build_type == 'all' || github.event.inputs.build_type == matrix.image_name }}
-
     permissions:
       contents: read
       packages: write
@@ -59,6 +57,7 @@ jobs:
           echo "FULL_IMAGE_NAME=${{ github.repository }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.build_type == 'all' || github.event.inputs.build_type == matrix.image_name }}
         uses: docker/build-push-action@v5
         with:
           context: .

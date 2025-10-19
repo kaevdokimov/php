@@ -21,11 +21,9 @@ jobs:
           - dockerfile: 'Dockerfile-PHP84'
             app_env: prod
             image_name: 'php84'
-            tag_suffix: '8.4'
           - dockerfile: 'Dockerfile-PHP84'
             app_env: dev
             image_name: 'php84-dev'
-            tag_suffix: '8.4-dev'
 
     permissions:
       contents: read
@@ -45,16 +43,12 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GH_TOKEN }}
 
-      - name: Extract branch name
-        id: branch-name
+      - name: Set environment variables
         run: |
-          BRANCH_NAME="${{ github.head_ref || github.ref_name }}"
-          BRANCH_NAME=$(echo "${BRANCH_NAME}" | tr / - | tr '[:upper:]' '[:lower:]')
-          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
-          echo "IMAGE_TAG=${BRANCH_NAME}-${{ matrix.tag_suffix }}" >> $GITHUB_ENV
-          echo "FULL_IMAGE_NAME=${{ github.repository }}" >> $GITHUB_ENV
+          echo "FULL_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/php" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${{ matrix.image_name }}" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.build_type == 'all' || github.event.inputs.build_type == matrix.image_name }}
@@ -65,9 +59,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ env.FULL_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            ghcr.io/${{ env.FULL_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.tag_suffix }}
-            ghcr.io/${{ env.FULL_IMAGE_NAME }}:${{ matrix.tag_suffix }}-latest
+            ${{ env.FULL_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ${{ env.FULL_IMAGE_NAME }}:${{ github.sha }}-${{ matrix.image_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |

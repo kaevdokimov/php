@@ -1,9 +1,10 @@
 # PHP 8.4 Docker Image
 
-Docker-образ на основе PHP 8.4 с предустановленными расширениями и настройками для работы с Symfony.
+Docker-образ на основе Alpine Linux 3.22 и PHP 8.4 с предустановленными расширениями и настройками для работы с Symfony.
 
 ## Содержимое образа
 
+- [Alpine Linux 3.22](https://alpinelinux.org/posts/Alpine-3.22.0-released.html)
 - [PHP 8.4](https://www.php.net/releases/8.4/index.php)
 - Установленные расширения PHP, необходимые для [Symfony](https://symfony.com/)
 - Настроенный [PHP-FPM](https://www.php.net/manual/en/install.fpm.php)

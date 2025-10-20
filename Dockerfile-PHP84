@@ -24,7 +24,7 @@ ENV PHP_CONF_DIR=/usr/local/etc/php/conf.d \
     COMPOSER_CACHE_DIR=/tmp/composer-cache
 
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    git unzip wget curl openssh-client bash icu-dev libxml2-dev gmp-dev libpng-dev \
+    unzip wget openssh-client icu-dev libxml2-dev gmp-dev libpng-dev \
     libzip-dev postgresql-dev rabbitmq-c-dev libssh-dev gettext-dev linux-headers \
     autoconf gcc g++ make pcre-dev zlib-dev && \
     docker-php-ext-install -j$(nproc) \
@@ -57,7 +57,8 @@ COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 COPY --from=builder /usr/local/bin/composer /usr/local/bin/composer
 
-RUN apk add --no-cache shadow icu libzip postgresql-libs rabbitmq-c gmp gettext libpng freetype libjpeg-turbo libwebp && \
+RUN apk add --no-cache shadow bash curl git make icu libzip  \
+    postgresql-libs rabbitmq-c gmp gettext libpng freetype libjpeg-turbo libwebp && \
     if ! getent group www >/dev/null 2>&1; then addgroup -g ${GID} www; fi && \
     if ! id www-data >/dev/null 2>&1; then adduser -D -u ${UID} -G www www-data; fi && \
     ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && \

@@ -21,15 +21,15 @@ Docker-образ на основе Alpine Linux 3.22 и PHP 8.4 с предус
 - [APCu](https://www.php.net/manual/en/book.apcu.php)
 - [SimpleXML](https://www.php.net/manual/en/book.simplexml.php)
 - [Composer 2](https://getcomposer.org/)
-- [Wget](https://wikipedia.org/wiki/Wget)
 - [Curl](https://curl.se/)
+<<<<<<< HEAD
 - [Cron](https://crontab.guru/)
+=======
+>>>>>>> 6a4c17e (chore(dependencies): clean up unused dependencies in README and PHP84 Dockerfile)
 - [Bash](https://www.gnu.org/software/bash/)
 - [Make](https://www.gnu.org/software/make/)
 - [Pcre](https://www.pcre.org/)
 - [PCNTL](https://www.php.net/manual/en/book.pcntl.php)
-- Zip, Unzip, Libzip-dev, Zlib-dev
-- Git
 
 ## Использование
 

@@ -57,7 +57,11 @@ COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
 COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 COPY --from=builder /usr/local/bin/composer /usr/local/bin/composer
 
+<<<<<<< HEAD
 RUN apk add --no-cache shadow bash curl git make icu libzip  \
+=======
+RUN apk add --no-cache shadow bash curl make icu libzip  \
+>>>>>>> 6a4c17e (chore(dependencies): clean up unused dependencies in README and PHP84 Dockerfile)
     postgresql-libs rabbitmq-c gmp gettext libpng freetype libjpeg-turbo libwebp && \
     if ! getent group www >/dev/null 2>&1; then addgroup -g ${GID} www; fi && \
     if ! id www-data >/dev/null 2>&1; then adduser -D -u ${UID} -G www www-data; fi && \
